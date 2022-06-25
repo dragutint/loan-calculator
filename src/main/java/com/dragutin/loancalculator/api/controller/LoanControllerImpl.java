@@ -9,6 +9,8 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @Log4j2
 @RestController
 @RequestMapping( "/api/loan" )
@@ -24,7 +26,7 @@ public class LoanControllerImpl implements LoanController {
 
     @Override
     @GetMapping("/calculate")
-    public ResponseEntity<ApiCalculation> calculate(@RequestBody ApiLoanRequest loanRequest) {
+    public ResponseEntity<ApiCalculation> calculate(@Valid @RequestBody ApiLoanRequest loanRequest) {
         Calculation calculation = calculationService.calculate(loanRequest.getLoanAmount(), loanRequest.getInterestRate(), loanRequest.getLoanTermMonths());
 
         return ResponseEntity
