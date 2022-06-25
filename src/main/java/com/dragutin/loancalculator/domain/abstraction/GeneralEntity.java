@@ -11,9 +11,6 @@ import java.time.Instant;
 @Getter
 @MappedSuperclass
 public abstract class GeneralEntity<T extends Serializable>{
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    protected T id;
 
     @CreationTimestamp
     @Column(name = "created_at",
