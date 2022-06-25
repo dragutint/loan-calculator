@@ -13,7 +13,7 @@ public class CalculationConverter extends AbstractConverter<ApiCalculation, Calc
                 domainObj.getLoanAmount(),
                 domainObj.getInterestRate(),
                 domainObj.getLoanTerm(),
-                domainObj.getMonthlyPayment(),
+                domainObj.getFixedMonthlyPayment(),
                 domainObj.getTotalInterestPaid()
         );
     }
