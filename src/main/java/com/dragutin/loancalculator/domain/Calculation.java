@@ -7,9 +7,9 @@ import org.springframework.util.CollectionUtils;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TreeSet;
 
 @Data
 @NoArgsConstructor
@@ -32,7 +32,7 @@ public class Calculation extends SimpleGeneralEntity {
 
     public void addMonthlyPayment(MonthlyPayment monthlyPayment) {
         if(CollectionUtils.isEmpty(monthlyPayments))
-            monthlyPayments = new HashSet<>();
+            monthlyPayments = new TreeSet<>();
 
         if(Objects.nonNull(monthlyPayment))
             this.monthlyPayments.add(monthlyPayment);
