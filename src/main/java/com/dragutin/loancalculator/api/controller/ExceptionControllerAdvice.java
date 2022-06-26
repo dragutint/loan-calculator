@@ -25,7 +25,7 @@ public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         BindingResult result = ex.getBindingResult();
-        ApiError apiError = new ApiError(UUID.randomUUID().toString(), HttpStatus.BAD_REQUEST, "Validation error", ex);
+        ApiError apiError = new ApiError(UUID.randomUUID().toString(), HttpStatus.BAD_REQUEST, ApiError.ApiValidationError.NAME, ex);
         apiError.addValidationErrors(result.getFieldErrors());
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);

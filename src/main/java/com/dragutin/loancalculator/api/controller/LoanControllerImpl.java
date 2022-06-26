@@ -25,7 +25,7 @@ public class LoanControllerImpl implements LoanController {
     }
 
     @Override
-    @GetMapping("/calculate")
+    @PostMapping("/calculate")
     public ResponseEntity<ApiCalculation> calculate(@Valid @RequestBody ApiLoanRequest loanRequest) {
         Calculation calculation = calculationService.calculate(loanRequest.getLoanAmount(), loanRequest.getInterestRate(), loanRequest.getLoanTermMonths());
 

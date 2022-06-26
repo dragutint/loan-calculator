@@ -65,7 +65,9 @@ public class ApiError {
     @Data
     @EqualsAndHashCode
     @AllArgsConstructor
-    static class ApiValidationError {
+    public static class ApiValidationError {
+        public static String NAME = "Validation error";
+
         private String object;
 
         private String field;
