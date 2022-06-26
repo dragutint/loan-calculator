@@ -1,6 +1,7 @@
 package com.dragutin.loancalculator.domain;
 
 import com.dragutin.loancalculator.domain.abstraction.CompositeGeneralEntity;
+import com.dragutin.loancalculator.math.util.MathRoundingUtility;
 import lombok.*;
 
 import javax.persistence.Entity;
@@ -25,7 +26,7 @@ public class MonthlyPayment extends CompositeGeneralEntity<MonthlyPaymentKey> im
     @PrePersist
     private void prePersist() {
         if(Objects.nonNull(principalAmount) && Objects.nonNull(interestAmount))
-            paymentAmount = principalAmount + interestAmount;
+            paymentAmount = MathRoundingUtility.twoDecimals(principalAmount + interestAmount);
     }
 
     @Override
