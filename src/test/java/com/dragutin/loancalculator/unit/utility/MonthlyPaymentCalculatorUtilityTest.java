@@ -6,26 +6,29 @@ import com.dragutin.loancalculator.domain.MonthlyPayment;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 public class MonthlyPaymentCalculatorUtilityTest {
 
     @Test
     public void amortizationMonthlyPayment_simpleCase() {
         MonthlyPayment monthlyPayment = MonthlyPaymentCalculatorUtility.amortizationMonthlyPayment(430.33 , 6.00, 5000.00);
-        Assertions.assertEquals(405.33, monthlyPayment.getPrincipalAmount());
-        Assertions.assertEquals(25.00, monthlyPayment.getInterestAmount());
-        Assertions.assertEquals(4594.67, monthlyPayment.getBalanceOwed());
+        assertEquals(405.33, monthlyPayment.getPrincipalAmount());
+        assertEquals(25.00, monthlyPayment.getInterestAmount());
+        assertEquals(4594.67, monthlyPayment.getBalanceOwed());
     }
 
     @Test
     public void amortizationMonthlyPayment_lastPaymentDifferent() {
         MonthlyPayment monthlyPayment = MonthlyPaymentCalculatorUtility.amortizationMonthlyPayment(430.33 , 6.00, 428.21);
-        Assertions.assertEquals(428.21, monthlyPayment.getPrincipalAmount());
-        Assertions.assertEquals(2.14, monthlyPayment.getInterestAmount());
-        Assertions.assertEquals(0.00, monthlyPayment.getBalanceOwed());
+        assertEquals(428.21, monthlyPayment.getPrincipalAmount());
+        assertEquals(2.14, monthlyPayment.getInterestAmount());
+        assertEquals(0.00, monthlyPayment.getBalanceOwed());
     }
 
     @Test
     public void amortizationMonthlyPayment_nullParameters() {
-        Assertions.assertThrows(InvalidCalculationParameterException.class, () -> MonthlyPaymentCalculatorUtility.amortizationMonthlyPayment(null , null, null));
+        assertThrows(InvalidCalculationParameterException.class, () -> MonthlyPaymentCalculatorUtility.amortizationMonthlyPayment(null , null, null));
     }
 }
