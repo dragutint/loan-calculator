@@ -1,2 +1,5 @@
-# loan-calculator
-Loan Calculator
+# Loan Calculator
+
+Before running app, start database:
+
+`docker-compose up -D`
