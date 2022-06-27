@@ -6,7 +6,6 @@ import com.dragutin.loancalculator.api.domain.ApiError;
 import com.dragutin.loancalculator.api.domain.ApiLoanRequest;
 import com.dragutin.loancalculator.api.domain.ApiPeriodPayment;
 import com.dragutin.loancalculator.bl.messages.ErrorMessages;
-import com.dragutin.loancalculator.domain.PaymentFrequencyEnum;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +35,7 @@ public class LoanControllerTest extends AbstractIntegrationTest {
     @Test
     @Transactional
     public void test_simpleCase() {
-        ResponseEntity<ApiCalculation> response = restTemplate.postForEntity(createURL("/api/loan/calculate"), prepareBody(5000.00, 6.00, 3, PaymentFrequencyEnum.MONTHLY), ApiCalculation.class);
+        ResponseEntity<ApiCalculation> response = restTemplate.postForEntity(createURL("/api/loan/calculate"), prepareBody(5000.00, 6.00, 3, "MONTHLY"), ApiCalculation.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
@@ -79,12 +78,10 @@ public class LoanControllerTest extends AbstractIntegrationTest {
                 );
     }
 
-
-
     @Test
     @Transactional
     public void test_allNegativeParameters() {
-        ApiLoanRequest loanRequest = prepareBody(-2.00, -2.00, -2, PaymentFrequencyEnum.MONTHLY);
+        ApiLoanRequest loanRequest = prepareBody(-2.00, -2.00, -2, "MONTHLY");
         ResponseEntity<ApiError> response = restTemplate.postForEntity(createURL("/api/loan/calculate"), loanRequest, ApiError.class);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -104,7 +101,29 @@ public class LoanControllerTest extends AbstractIntegrationTest {
                 );
     }
 
-    private ApiLoanRequest prepareBody(Double loanAmount, Double interestRate, Integer numberOfPayments, PaymentFrequencyEnum paymentFrequency) {
+
+    @Test
+    @Transactional
+    public void test_paymentFrequencyInvalid() {
+        ApiLoanRequest loanRequest = prepareBody(5000.00, 6.00, 60, "ASD");
+        ResponseEntity<ApiError> response = restTemplate.postForEntity(createURL("/api/loan/calculate"), loanRequest, ApiError.class);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+
+        ApiError error = response.getBody();
+
+        assertNotNull(error);
+        assertEquals(ApiError.ApiValidationError.NAME, error.getMessage());
+        assertEquals(HttpStatus.BAD_REQUEST, error.getStatus());
+
+        Assertions.assertThat(error.getValidationErrors())
+                .hasSize(1)
+                .containsExactlyInAnyOrder(
+                        new ApiError.ApiValidationError("apiLoanRequest", "paymentFrequency", loanRequest.getPaymentFrequency(), ErrorMessages.PaymentFrequency.INVALID)
+                );
+    }
+
+    private ApiLoanRequest prepareBody(Double loanAmount, Double interestRate, Integer numberOfPayments, String paymentFrequency) {
         ApiLoanRequest request = new ApiLoanRequest();
         request.setLoanAmount(loanAmount);
         request.setInterestRate(interestRate);

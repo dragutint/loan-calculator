@@ -20,5 +20,6 @@ public class ErrorMessages {
 
     public static class PaymentFrequency {
         public static final String NULL = "Payment frequency is not provided";
+        public static final String INVALID = "Payment frequency is not valid";
     }
 }

@@ -5,6 +5,7 @@ import com.dragutin.loancalculator.api.domain.ApiCalculation;
 import com.dragutin.loancalculator.api.domain.ApiLoanRequest;
 import com.dragutin.loancalculator.domain.Calculation;
 import com.dragutin.loancalculator.bl.service.CalculationService;
+import com.dragutin.loancalculator.domain.PaymentFrequencyEnum;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +28,7 @@ public class LoanControllerImpl implements LoanController {
     @Override
     @PostMapping("/calculate")
     public ResponseEntity<ApiCalculation> calculate(@Valid @RequestBody ApiLoanRequest loanRequest) {
-        Calculation calculationRequest = new Calculation(loanRequest.getLoanAmount(), loanRequest.getInterestRate(), loanRequest.getNumberOfPayments(), loanRequest.getPaymentFrequency());
+        Calculation calculationRequest = new Calculation(loanRequest.getLoanAmount(), loanRequest.getInterestRate(), loanRequest.getNumberOfPayments(), PaymentFrequencyEnum.valueOf(loanRequest.getPaymentFrequency()));
         Calculation calculationResponse = calculationService.calculate(calculationRequest);
 
         return ResponseEntity

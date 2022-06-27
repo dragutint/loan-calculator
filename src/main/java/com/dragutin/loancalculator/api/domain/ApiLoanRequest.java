@@ -1,5 +1,6 @@
 package com.dragutin.loancalculator.api.domain;
 
+import com.dragutin.loancalculator.api.domain.validator.ValueOfEnum;
 import com.dragutin.loancalculator.bl.messages.ErrorMessages;
 import com.dragutin.loancalculator.domain.PaymentFrequencyEnum;
 import io.swagger.annotations.ApiModel;
@@ -30,5 +31,6 @@ public class ApiLoanRequest extends ApiObject {
 
     @ApiModelProperty(notes = "Payment frequency", example = "MONTHLY")
     @NotNull(message = ErrorMessages.PaymentFrequency.NULL)
-    private PaymentFrequencyEnum paymentFrequency;
+    @ValueOfEnum(enumClass = PaymentFrequencyEnum.class, message = ErrorMessages.PaymentFrequency.INVALID)
+    private String paymentFrequency;
 }
