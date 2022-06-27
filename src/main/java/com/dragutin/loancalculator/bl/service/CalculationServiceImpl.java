@@ -4,12 +4,14 @@ import com.dragutin.loancalculator.bl.exception.InvalidCalculationParameterExcep
 import com.dragutin.loancalculator.bl.messages.ErrorMessages;
 import com.dragutin.loancalculator.bl.repository.CalculationRepository;
 import com.dragutin.loancalculator.bl.util.LoanCalculatorUtility;
-import com.dragutin.loancalculator.bl.util.MonthlyPaymentCalculatorUtility;
+import com.dragutin.loancalculator.bl.util.PaymentPerPeriodCalculatorUtility;
 import com.dragutin.loancalculator.domain.Calculation;
-import com.dragutin.loancalculator.domain.MonthlyPayment;
-import com.dragutin.loancalculator.domain.MonthlyPaymentKey;
+import com.dragutin.loancalculator.domain.PeriodPayment;
+import com.dragutin.loancalculator.domain.PeriodPaymentKey;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
+
+import java.util.Objects;
 
 @Log4j2
 @Service
@@ -21,62 +23,64 @@ public class CalculationServiceImpl implements CalculationService {
     }
 
     @Override
-    public Calculation calculate(Double loanAmount, Double interestRate, Integer loanTermMonths) {
-        log.debug("Loan calculation request, amount: {}, interest rate: {}, loan term months: {}", loanAmount, interestRate, loanTermMonths);
+    public Calculation calculate(Calculation calculation) {
+        if(Objects.isNull(calculation))
+            throw new IllegalArgumentException();
 
-        Calculation calculation = initializeCalculation(loanAmount, interestRate, loanTermMonths);
+        log.debug(
+                "Got loan calculation request, amount: {}, interest rate: {}, number of payments: {}, payment frequency: {}",
+                calculation.getLoanAmount(),
+                calculation.getInterestRate(),
+                calculation.getNumberOfPayments(),
+                calculation.getPaymentFrequency()
+        );
+
         prerequisites(calculation);
 
-        calculation.setFixedMonthlyPayment(LoanCalculatorUtility.fixedMonthlyPayment(loanAmount, interestRate, loanTermMonths));
-        calculation.setTotalInterestPaid(LoanCalculatorUtility.totalInterestPaid(loanAmount, calculation.getFixedMonthlyPayment(), loanTermMonths));
-
-        log.debug("Loan calculation processed: {}", calculation);
-
-        calculateMonthlyPayments(calculation);
+        calculation.setFixedPeriodPayment(LoanCalculatorUtility.fixedPeriodPayment(calculation));
+        calculation.setTotalInterestPaid(LoanCalculatorUtility.totalInterestPaid(calculation));
+        calculatePeriodPayments(calculation);
 
         calculationRepository.save(calculation);
+
+        log.debug("Loan calculation processed: {}", calculation);
 
         return calculation;
     }
 
-    private void calculateMonthlyPayments(Calculation calculation) {
+    private void calculatePeriodPayments(Calculation calculation) {
         Double previousBalanceOwed = calculation.getLoanAmount();
-        for(int i = 0; i < calculation.getLoanTerm(); i++) {
-            MonthlyPayment mp = MonthlyPaymentCalculatorUtility.amortizationMonthlyPayment(
-                    calculation.getFixedMonthlyPayment(),
-                    calculation.getInterestRate(),
-                    previousBalanceOwed);
+        for(int i = 0; i < calculation.getNumberOfPayments(); i++) {
+            PeriodPayment mp = PaymentPerPeriodCalculatorUtility.amortizationPeriodPayment(calculation, previousBalanceOwed);
 
-            MonthlyPaymentKey key = new MonthlyPaymentKey(calculation, i+1);
+            PeriodPaymentKey key = new PeriodPaymentKey(calculation, i+1);
             mp.setId(key);
 
-            calculation.addMonthlyPayment(mp);
+            calculation.addPeriodPayment(mp);
             previousBalanceOwed = mp.getBalanceOwed();
         }
     }
 
     private void prerequisites(Calculation calculation) {
-        if(calculation.getLoanAmount() == null)
+        if(Objects.isNull(calculation))
+            throw new InvalidCalculationParameterException();
+
+        if(Objects.isNull(calculation.getLoanAmount()))
             throw new InvalidCalculationParameterException(ErrorMessages.Loan.AMOUNT_NULL);
         if(calculation.getLoanAmount() <= 0)
             throw new InvalidCalculationParameterException(ErrorMessages.Loan.AMOUNT_NOT_POSITIVE);
 
-        if(calculation.getInterestRate() == null)
+        if(Objects.isNull(calculation.getInterestRate()))
             throw new InvalidCalculationParameterException(ErrorMessages.InterestRate.NULL);
         if(calculation.getInterestRate() <= 0)
             throw new InvalidCalculationParameterException(ErrorMessages.InterestRate.NOT_POSITIVE);
 
-        if(calculation.getLoanTerm() == null)
-            throw new InvalidCalculationParameterException(ErrorMessages.Loan.TERM_NULL);
-        if(calculation.getLoanTerm() <= 0)
-            throw new InvalidCalculationParameterException(ErrorMessages.Loan.TERM_NOT_POSITIVE);
-    }
+        if(Objects.isNull(calculation.getNumberOfPayments()))
+            throw new InvalidCalculationParameterException(ErrorMessages.NumberOfPayments.NULL);
+        if(calculation.getNumberOfPayments() <= 0)
+            throw new InvalidCalculationParameterException(ErrorMessages.NumberOfPayments.NOT_POSITIVE);
 
-    private Calculation initializeCalculation(Double loanAmount, Double interestRate, Integer loanTermMonths) {
-        Calculation calculation = new Calculation();
-        calculation.setLoanAmount(loanAmount);
-        calculation.setInterestRate(interestRate);
-        calculation.setLoanTerm(loanTermMonths);
-        return calculation;
+        if(Objects.isNull(calculation.getPaymentFrequency()))
+            throw new InvalidCalculationParameterException(ErrorMessages.PaymentFrequency.NULL);
     }
 }

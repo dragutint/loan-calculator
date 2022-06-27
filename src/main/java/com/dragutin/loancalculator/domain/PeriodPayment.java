@@ -13,7 +13,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class MonthlyPayment extends CompositeGeneralEntity<MonthlyPaymentKey> implements Comparable<MonthlyPayment>{
+public class PeriodPayment extends CompositeGeneralEntity<PeriodPaymentKey> implements Comparable<PeriodPayment>{
 
     private Double paymentAmount;
 
@@ -30,7 +30,7 @@ public class MonthlyPayment extends CompositeGeneralEntity<MonthlyPaymentKey> im
     }
 
     @Override
-    public int compareTo(MonthlyPayment mp) {
+    public int compareTo(PeriodPayment mp) {
         return this.getId().getPaymentNumber() - mp.getId().getPaymentNumber();
     }
 }

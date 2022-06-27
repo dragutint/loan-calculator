@@ -4,8 +4,9 @@ import com.dragutin.loancalculator.LoanCalculatorApplication;
 import com.dragutin.loancalculator.api.domain.ApiCalculation;
 import com.dragutin.loancalculator.api.domain.ApiError;
 import com.dragutin.loancalculator.api.domain.ApiLoanRequest;
-import com.dragutin.loancalculator.api.domain.ApiMonthlyPayment;
+import com.dragutin.loancalculator.api.domain.ApiPeriodPayment;
 import com.dragutin.loancalculator.bl.messages.ErrorMessages;
+import com.dragutin.loancalculator.domain.PaymentFrequencyEnum;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,29 +36,29 @@ public class LoanControllerTest extends AbstractIntegrationTest {
     @Test
     @Transactional
     public void test_simpleCase() {
-        ResponseEntity<ApiCalculation> response = restTemplate.postForEntity(createURL("/api/loan/calculate"), prepareBody(5000.00, 6.00, 3), ApiCalculation.class);
+        ResponseEntity<ApiCalculation> response = restTemplate.postForEntity(createURL("/api/loan/calculate"), prepareBody(5000.00, 6.00, 3, PaymentFrequencyEnum.MONTHLY), ApiCalculation.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
         ApiCalculation calculation = response.getBody();
 
         assertNotNull(calculation);
-        assertEquals(1683.36, calculation.getMonthlyPayment());
+        assertEquals(1683.36, calculation.getPeriodPayment());
         assertEquals(50.08, calculation.getTotalInterestPaid());
 
-        Assertions.assertThat(calculation.getMonthlyPayments())
-                .hasSize(calculation.getLoanTerm())
+        Assertions.assertThat(calculation.getPeriodPayments())
+                .hasSize(calculation.getNumberOfPayments())
                 .containsExactly(
-                        new ApiMonthlyPayment(1, 1683.36, 1658.36, 25.00, 3341.64),
-                        new ApiMonthlyPayment(2, 1683.36, 1666.65, 16.71, 1674.99),
-                        new ApiMonthlyPayment(3, 1683.36, 1674.99, 8.37, 0.00)
+                        new ApiPeriodPayment(1, 1683.36, 1658.36, 25.00, 3341.64),
+                        new ApiPeriodPayment(2, 1683.36, 1666.65, 16.71, 1674.99),
+                        new ApiPeriodPayment(3, 1683.36, 1674.99, 8.37, 0.00)
                 );
     }
 
     @Test
     @Transactional
     public void test_allNullParameters() {
-        ApiLoanRequest loanRequest = prepareBody(null, null, null);
+        ApiLoanRequest loanRequest = prepareBody(null, null, null, null);
         ResponseEntity<ApiError> response = restTemplate.postForEntity(createURL("/api/loan/calculate"), loanRequest, ApiError.class);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -69,11 +70,12 @@ public class LoanControllerTest extends AbstractIntegrationTest {
         assertEquals(HttpStatus.BAD_REQUEST, error.getStatus());
 
         Assertions.assertThat(error.getValidationErrors())
-                .hasSize(3)
+                .hasSize(4)
                 .containsExactlyInAnyOrder(
                         new ApiError.ApiValidationError("apiLoanRequest", "loanAmount", loanRequest.getLoanAmount(), ErrorMessages.Loan.AMOUNT_NULL),
                         new ApiError.ApiValidationError("apiLoanRequest", "interestRate", loanRequest.getInterestRate(), ErrorMessages.InterestRate.NULL),
-                        new ApiError.ApiValidationError("apiLoanRequest", "loanTermMonths", loanRequest.getLoanTermMonths(), ErrorMessages.Loan.TERM_NULL)
+                        new ApiError.ApiValidationError("apiLoanRequest", "numberOfPayments", loanRequest.getNumberOfPayments(), ErrorMessages.NumberOfPayments.NULL),
+                        new ApiError.ApiValidationError("apiLoanRequest", "paymentFrequency", loanRequest.getPaymentFrequency(), ErrorMessages.PaymentFrequency.NULL)
                 );
     }
 
@@ -82,7 +84,7 @@ public class LoanControllerTest extends AbstractIntegrationTest {
     @Test
     @Transactional
     public void test_allNegativeParameters() {
-        ApiLoanRequest loanRequest = prepareBody(-2.00, -2.00, -2);
+        ApiLoanRequest loanRequest = prepareBody(-2.00, -2.00, -2, PaymentFrequencyEnum.MONTHLY);
         ResponseEntity<ApiError> response = restTemplate.postForEntity(createURL("/api/loan/calculate"), loanRequest, ApiError.class);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -98,15 +100,16 @@ public class LoanControllerTest extends AbstractIntegrationTest {
                 .containsExactlyInAnyOrder(
                         new ApiError.ApiValidationError("apiLoanRequest", "loanAmount", loanRequest.getLoanAmount(), ErrorMessages.Loan.AMOUNT_NOT_POSITIVE),
                         new ApiError.ApiValidationError("apiLoanRequest", "interestRate", loanRequest.getInterestRate(), ErrorMessages.InterestRate.NOT_POSITIVE),
-                        new ApiError.ApiValidationError("apiLoanRequest", "loanTermMonths", loanRequest.getLoanTermMonths(), ErrorMessages.Loan.TERM_NOT_POSITIVE)
+                        new ApiError.ApiValidationError("apiLoanRequest", "numberOfPayments", loanRequest.getNumberOfPayments(), ErrorMessages.NumberOfPayments.NOT_POSITIVE)
                 );
     }
 
-    private ApiLoanRequest prepareBody(Double loanAmount, Double interestRate, Integer loanTermMonths) {
+    private ApiLoanRequest prepareBody(Double loanAmount, Double interestRate, Integer numberOfPayments, PaymentFrequencyEnum paymentFrequency) {
         ApiLoanRequest request = new ApiLoanRequest();
         request.setLoanAmount(loanAmount);
         request.setInterestRate(interestRate);
-        request.setLoanTermMonths(loanTermMonths);
+        request.setNumberOfPayments(numberOfPayments);
+        request.setPaymentFrequency(paymentFrequency);
         return request;
     }
 

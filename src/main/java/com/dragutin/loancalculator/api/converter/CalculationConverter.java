@@ -7,10 +7,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class CalculationConverter extends AbstractConverter<ApiCalculation, Calculation> {
 
-    private final MonthlyPaymentConverter monthlyPaymentConverter;
+    private final PeriodPaymentConverter periodPaymentConverter;
 
-    public CalculationConverter(MonthlyPaymentConverter monthlyPaymentConverter) {
-        this.monthlyPaymentConverter = monthlyPaymentConverter;
+    public CalculationConverter(PeriodPaymentConverter periodPaymentConverter) {
+        this.periodPaymentConverter = periodPaymentConverter;
     }
 
     @Override
@@ -18,10 +18,11 @@ public class CalculationConverter extends AbstractConverter<ApiCalculation, Calc
         return new ApiCalculation(
                 domainObj.getLoanAmount(),
                 domainObj.getInterestRate(),
-                domainObj.getLoanTerm(),
-                domainObj.getFixedMonthlyPayment(),
+                domainObj.getNumberOfPayments(),
+                domainObj.getPaymentFrequency(),
+                domainObj.getFixedPeriodPayment(),
                 domainObj.getTotalInterestPaid(),
-                monthlyPaymentConverter.toDTO(domainObj.getMonthlyPayments())
+                periodPaymentConverter.toDTO(domainObj.getPeriodPayments())
         );
     }
 }

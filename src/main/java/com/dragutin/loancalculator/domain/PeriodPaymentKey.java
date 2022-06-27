@@ -11,7 +11,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @Embeddable
-public class MonthlyPaymentKey implements Serializable {
+public class PeriodPaymentKey implements Serializable {
     @ManyToOne
     @JoinColumn(name = "calculation_id", nullable = false)
     @EqualsAndHashCode.Exclude

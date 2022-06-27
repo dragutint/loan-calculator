@@ -1,15 +1,15 @@
 package com.dragutin.loancalculator.api.converter;
 
-import com.dragutin.loancalculator.api.domain.ApiMonthlyPayment;
-import com.dragutin.loancalculator.domain.MonthlyPayment;
+import com.dragutin.loancalculator.api.domain.ApiPeriodPayment;
+import com.dragutin.loancalculator.domain.PeriodPayment;
 import org.springframework.stereotype.Component;
 
 @Component
-public class MonthlyPaymentConverter extends AbstractConverter<ApiMonthlyPayment, MonthlyPayment> {
+public class PeriodPaymentConverter extends AbstractConverter<ApiPeriodPayment, PeriodPayment> {
 
     @Override
-    public ApiMonthlyPayment toDTO(MonthlyPayment domainObj) {
-        return new ApiMonthlyPayment(
+    public ApiPeriodPayment toDTO(PeriodPayment domainObj) {
+        return new ApiPeriodPayment(
                 domainObj.getId().getPaymentNumber(),
                 domainObj.getPaymentAmount(),
                 domainObj.getPrincipalAmount(),

@@ -27,10 +27,11 @@ public class LoanControllerImpl implements LoanController {
     @Override
     @PostMapping("/calculate")
     public ResponseEntity<ApiCalculation> calculate(@Valid @RequestBody ApiLoanRequest loanRequest) {
-        Calculation calculation = calculationService.calculate(loanRequest.getLoanAmount(), loanRequest.getInterestRate(), loanRequest.getLoanTermMonths());
+        Calculation calculationRequest = new Calculation(loanRequest.getLoanAmount(), loanRequest.getInterestRate(), loanRequest.getNumberOfPayments(), loanRequest.getPaymentFrequency());
+        Calculation calculationResponse = calculationService.calculate(calculationRequest);
 
         return ResponseEntity
                 .ok()
-                .body(calculationConverter.toDTO(calculation));
+                .body(calculationConverter.toDTO(calculationResponse));
     }
 }

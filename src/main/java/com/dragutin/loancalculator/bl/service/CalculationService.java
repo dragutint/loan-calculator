@@ -1,7 +1,8 @@
 package com.dragutin.loancalculator.bl.service;
 
 import com.dragutin.loancalculator.domain.Calculation;
+import com.dragutin.loancalculator.domain.PaymentFrequencyEnum;
 
 public interface CalculationService {
-    Calculation calculate(Double loanAmount, Double interestRate, Integer loanTermMonths);
+    Calculation calculate(Calculation requestedCalculation);
 }

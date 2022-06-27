@@ -1,6 +1,7 @@
 package com.dragutin.loancalculator.api.domain;
 
 import com.dragutin.loancalculator.bl.messages.ErrorMessages;
+import com.dragutin.loancalculator.domain.PaymentFrequencyEnum;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -22,8 +23,12 @@ public class ApiLoanRequest extends ApiObject {
     @Positive(message = ErrorMessages.InterestRate.NOT_POSITIVE)
     private Double interestRate;
 
-    @ApiModelProperty(notes = "Loan term in months", example = "12.00")
-    @NotNull(message = ErrorMessages.Loan.TERM_NULL)
-    @Positive(message = ErrorMessages.Loan.TERM_NOT_POSITIVE)
-    private Integer loanTermMonths;
+    @ApiModelProperty(notes = "Number of payments", example = "12.00")
+    @NotNull(message = ErrorMessages.NumberOfPayments.NULL)
+    @Positive(message = ErrorMessages.NumberOfPayments.NOT_POSITIVE)
+    private Integer numberOfPayments;
+
+    @ApiModelProperty(notes = "Payment frequency", example = "MONTHLY")
+    @NotNull(message = ErrorMessages.PaymentFrequency.NULL)
+    private PaymentFrequencyEnum paymentFrequency;
 }

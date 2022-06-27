@@ -13,7 +13,7 @@ public interface LoanController {
     @ApiOperation(
             value = "Loan calculation",
             response = ApiCalculation.class,
-            notes = "Method can be used for calculating loan monthly payments with amortization schedule"
+            notes = "Method can be used for calculating loan payments for some frequency payment period with amortization schedule"
     )
     ResponseEntity<ApiCalculation> calculate(@ApiParam ApiLoanRequest loanRequest);
 }

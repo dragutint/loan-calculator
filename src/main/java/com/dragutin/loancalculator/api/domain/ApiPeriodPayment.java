@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@ApiModel(description = "One monthly payment in amortization schedule")
-public class ApiMonthlyPayment extends ApiObject {
+@ApiModel(description = "One period payment in amortization schedule")
+public class ApiPeriodPayment extends ApiObject {
     @ApiModelProperty(notes = "Payment number ordinal", example = "1")
     private Integer paymentNumber;
 
